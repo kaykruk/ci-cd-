@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-               git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/jaiswaladi246/Boardgame.git'
+               git branch: 'main', credentialsId: 'git-cred', url: 'git@github.com:kaykruk/ci-cd-tutorial.git
             }
         }
         
@@ -72,7 +72,7 @@ pipeline {
             steps {
                script {
                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                            sh "docker build -t adijaiswal/boardshack:latest ."
+                            sh "docker build -t snowypaper/boardshack:latest ."
                     }
                }
             }
@@ -80,7 +80,7 @@ pipeline {
         
         stage('Docker Image Scan') {
             steps {
-                sh "trivy image --format table -o trivy-image-report.html adijaiswal/boardshack:latest "
+                sh "trivy image --format table -o trivy-image-report.html snowypaper/boardshack:latest "
             }
         }
         
@@ -88,14 +88,14 @@ pipeline {
             steps {
                script {
                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                            sh "docker push adijaiswal/boardshack:latest"
+                            sh "docker push snowypaper/boardshack:latest"
                     }
                }
             }
         }
         stage('Deploy To Kubernetes') {
             steps {
-               withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.8.146:6443') {
+               withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: '', credentialsId: 'k8-cred', namespace: 'webapp', restrictKubeConfigAccess: false, serverUrl: 'https://127.0.0.1:32771') {
                         sh "kubectl apply -f deployment-service.yaml"
                 }
             }
@@ -103,9 +103,9 @@ pipeline {
         
         stage('Verify the Deployment') {
             steps {
-               withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.8.146:6443') {
-                        sh "kubectl get pods -n webapps"
-                        sh "kubectl get svc -n webapps"
+               withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: '', credentialsId: 'k8-cred', namespace: 'webapp', restrictKubeConfigAccess: false, serverUrl: 'https://127.0.0.1:32771') {
+                        sh "kubectl get pods -n webapp"
+                        sh "kubectl get svc -n webapp"
                 }
             }
         }
