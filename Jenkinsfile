@@ -6,7 +6,7 @@ pipeline {
         jdk 'jdk17'
         maven 'maven3'
     }
-
+}
     enviornment {
         SCANNER_HOME= tool 'sonar-scanner'
     }
@@ -14,10 +14,10 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-               git branch: 'main', credentialsId: 'git-cred', url: 'git@github.com:kaykruk/ci-cd-tutorial.git
+               git branch: 'main', credentialsId: 'git-cred', url: 'git@github.com:kaykruk/ci-cd-tutorial.git'
             }
         }
-        
+     
         stage('Compile') {
             steps {
                 sh "mvn compile"
@@ -110,8 +110,6 @@ pipeline {
             }
         }
         
-        
-    }
     post {
     always {
         script {
@@ -145,6 +143,4 @@ pipeline {
             )
         }
     }
-}
-
 }
